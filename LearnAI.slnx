@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/Learning Modules/">
+    <Project Path="Learning Modules/LearnAI.Agents/LearnAI.Agents.csproj" />
+    <Project Path="Learning Modules/LearnAI.Azure/LearnAI.Azure.csproj" />
+    <Project Path="Learning Modules/LearnAI.Chat/LearnAI.Chat.csproj" />
+    <Project Path="Learning Modules/LearnAI.Gateway/LearnAI.Gateway.csproj" />
+    <Project Path="Learning Modules/LearnAI.Kernel/LearnAI.Kernel.csproj" />
+    <Project Path="Learning Modules/LearnAI.MCP/LearnAI.MCP.csproj" />
+    <Project Path="Learning Modules/LearnAI.RAG/LearnAI.RAG.csproj" />
+    <Project Path="Learning Modules/LearnAI.Tools/LearnAI.Tools.csproj" />
+  </Folder>
+  <Folder Name="/Presentation Layer/">
+    <Project Path="Presentation Layer/LearnAI.API/LearnAI.API.csproj" />
+    <Project Path="Presentation Layer/LearnAI.React/LearnAI.React.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+    <Project Path="Presentation Layer/LearnAI.Web/LearnAI.Web.csproj" />
+  </Folder>
+  <Folder Name="/Testing/">
+    <Project Path="Testing/LearnAI.AITests/LearnAI.AITests.csproj" />
+  </Folder>
+  <Project Path="LearnAI.WebClients/LearnAI.WebClients.csproj" />
+</Solution>

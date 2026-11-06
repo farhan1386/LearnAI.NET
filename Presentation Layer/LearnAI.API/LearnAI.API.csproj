@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>887a0681-b5d1-42c4-865e-2e131ec78c73</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.11.0" />
+    <PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.7.0-preview.1.25356.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Learning Modules\LearnAI.Agents\LearnAI.Agents.csproj" />
+    <ProjectReference Include="..\..\Learning Modules\LearnAI.Azure\LearnAI.Azure.csproj" />
+    <ProjectReference Include="..\..\Learning Modules\LearnAI.Chat\LearnAI.Chat.csproj" />
+    <ProjectReference Include="..\..\Learning Modules\LearnAI.Gateway\LearnAI.Gateway.csproj" />
+    <ProjectReference Include="..\..\Learning Modules\LearnAI.Kernel\LearnAI.Kernel.csproj" />
+    <ProjectReference Include="..\..\Learning Modules\LearnAI.MCP\LearnAI.MCP.csproj" />
+    <ProjectReference Include="..\..\Learning Modules\LearnAI.RAG\LearnAI.RAG.csproj" />
+    <ProjectReference Include="..\..\Learning Modules\LearnAI.Tools\LearnAI.Tools.csproj" />
+  </ItemGroup>
+
+</Project>

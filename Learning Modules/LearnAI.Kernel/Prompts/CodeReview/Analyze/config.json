@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "description": "Reviews a block of code for performance, safety, and style cleanups.",
+  "execution_settings": {
+    "default": {
+      "temperature": 0.3,
+      "max_tokens": 1500,
+      "top_p": 1.0
+    }
+  },
+  "input_variables": [
+    {
+      "name": "input",
+      "description": "The raw code source string snippet to be analyzed.",
+      "required": true
+    },
+    {
+      "name": "language",
+      "description": "The programming language of the source block (e.g., C#, TypeScript, SQL).",
+      "required": true
+    }
+  ]
+}

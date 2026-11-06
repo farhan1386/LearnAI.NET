@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.6165494">
+  <PropertyGroup>
+    <StartupCommand>npm run dev</StartupCommand>
+    <JavaScriptTestRoot>src\</JavaScriptTestRoot>
+    <JavaScriptTestFramework>Vitest</JavaScriptTestFramework>
+    <!-- Allows the build (or compile) script located on package.json to run on Build -->
+    <ShouldRunBuildScript>false</ShouldRunBuildScript>
+    <!-- Folder where production build objects will be placed -->
+    <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\features\Agents\components\" />
+    <Folder Include="src\features\Agents\pages\" />
+    <Folder Include="src\features\Agents\Services\" />
+    <Folder Include="src\features\Chat\components\" />
+    <Folder Include="src\features\Chat\Services\" />
+    <Folder Include="src\features\Chat\pages\" />
+    <Folder Include="src\features\Gateway\components\" />
+    <Folder Include="src\features\Gateway\pages\" />
+    <Folder Include="src\features\Gateway\Services\" />
+    <Folder Include="src\features\Kernel\components\" />
+    <Folder Include="src\features\Kernel\pages\" />
+    <Folder Include="src\features\Kernel\Services\" />
+    <Folder Include="src\features\MCP\components\" />
+    <Folder Include="src\features\MCP\pages\" />
+    <Folder Include="src\features\MCP\Services\" />
+    <Folder Include="src\features\RAG\components\" />
+    <Folder Include="src\features\RAG\pages\" />
+    <Folder Include="src\features\RAG\Services\" />
+    <Folder Include="src\features\Tools\components\" />
+    <Folder Include="src\features\Tools\pages\" />
+    <Folder Include="src\features\Tools\Services\" />
+    <Folder Include="src\Common\" />
+  </ItemGroup>
+</Project>

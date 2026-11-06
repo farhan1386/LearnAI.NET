@@ -1,0 +1,251 @@
+﻿@{
+    ViewData["Title"] = "Knowledge Base RAG Assistant";
+}
+
+<div class="rag-layout">
+    <div class="rag-sidebar">
+        <div class="p-3">
+            <h5 class="fw-bold text-secondary mb-3">Knowledge Base</h5>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="upload-drop-zone" id="dropZone">
+                    <span>📁 Drag & Drop PDF here</span>
+                    <span class="small text-muted mt-1">or click to browse</span>
+                    <input type="file" id="fileInput" name="file" accept=".pdf" class="d-none" />
+                </div>
+            </form>
+            <div id="uploadStatus" class="mt-3 small fw-semibold text-center"></div>
+        </div>
+    </div>
+
+    <div class="rag-main">
+        <div id="ragChatHistory" class="flex-grow-1 overflow-auto p-4">
+            <div class="rag-chat-container" id="messageContainer">
+                <div class="d-flex gap-3 mb-4 align-items-start">
+                    <div class="avatar-box bg-dark text-white">🤖</div>
+                    <div class="message-text">
+                        Upload a document workspace file to start executing semantic vector searches!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-3 bg-white border-top">
+            <div class="rag-chat-container">
+                <form id="ragQueryForm" onsubmit="handleRagSubmit(event)">
+                    <div class="input-pill-wrapper">
+                        <input type="text" id="ragPromptInput" class="form-control input-pill" placeholder="Ask a question about your processed PDF..." autocomplete="off" required disabled />
+                        <button class="btn btn-send-pill" type="submit" id="ragSendBtn" disabled>
+                            ▲
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const promptInput = document.getElementById('ragPromptInput');
+    const sendBtn = document.getElementById('ragSendBtn');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            processFileUpload();
+        }
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) processFileUpload();
+    });
+
+    async function processFileUpload() {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        uploadStatus.className = "mt-3 small fw-semibold text-center text-primary";
+        uploadStatus.innerText = "Vectorizing document chunks...";
+
+        try {
+            const response = await fetch('/Rag/UploadPdf', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                uploadStatus.className = "mt-3 small fw-semibold text-center text-success";
+                uploadStatus.innerText = data.message;
+                promptInput.disabled = false;
+                sendBtn.disabled = false;
+            } else {
+                uploadStatus.className = "mt-3 small fw-semibold text-center text-danger";
+                uploadStatus.innerText = data.message;
+            }
+        } catch (err) {
+            uploadStatus.className = "mt-3 small fw-semibold text-center text-danger";
+            uploadStatus.innerText = "Server connection lost.";
+        }
+    }
+
+    async function handleRagSubmit(event) {
+        event.preventDefault();
+        const prompt = promptInput.value.trim();
+        if (!prompt) return;
+
+        promptInput.value = "";
+        appendMessage("🧠", prompt, "bg-primary text-white");
+
+        promptInput.disabled = true;
+        sendBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/Rag/Query?prompt=${encodeURIComponent(prompt)}`);
+            const data = await response.json();
+
+            if (data.success) {
+                appendMessage("🤖", data.response, "bg-dark text-white");
+            } else {
+                appendMessage("🤖", data.message, "bg-danger text-white");
+            }
+        } catch (err) {
+            appendMessage("🤖", "Error communicating with context query runner.", "bg-danger text-white");
+        } finally {
+            promptInput.disabled = false;
+            sendBtn.disabled = false;
+            promptInput.focus();
+        }
+    }
+
+    function appendMessage(avatar, text, avatarClass) {
+        const container = document.getElementById('messageContainer');
+        const wrapper = document.createElement('div');
+        wrapper.className = "d-flex gap-3 mb-4 align-items-start";
+
+        wrapper.innerHTML = `
+                <div class="avatar-box ${avatarClass}">${avatar}</div>
+                <div class="message-text">${text}</div>
+            `;
+        container.appendChild(wrapper);
+
+        const history = document.getElementById('ragChatHistory');
+        history.scrollTop = history.scrollHeight;
+    }
+</script>
+
+<style>
+    .rag-layout {
+        display: flex;
+        height: calc(100vh - 56px);
+        overflow: hidden;
+    }
+
+    .rag-sidebar {
+        width: 280px;
+        background-color: #f8f9fa;
+        border-right: 1px solid #dee2e6;
+        height: 100%;
+    }
+
+    .upload-drop-zone {
+        border: 2px dashed #ced4da;
+        border-radius: 8px;
+        padding: 2rem 1rem;
+        text-align: center;
+        background: white;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .upload-drop-zone.dragover, .upload-drop-zone:hover {
+            border-color: #0d6efd;
+            background-color: #f1f3f5;
+        }
+
+    .rag-main {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: white;
+    }
+
+    .rag-chat-container {
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .avatar-box {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .message-text {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #212529;
+        word-break: break-word;
+    }
+
+    .input-pill-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-pill {
+        border-radius: 24px;
+        padding: 0.75rem 3rem 0.75rem 1.25rem;
+    }
+
+    .btn-send-pill {
+        position: absolute;
+        right: 8px;
+        background: #212529;
+        color: white;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: none;
+    }
+
+        .btn-send-pill:hover {
+            background: #000;
+            color: white;
+        }
+
+        .btn-send-pill:disabled {
+            background: #e9ecef;
+            color: #adb5bd;
+        }
+</style>

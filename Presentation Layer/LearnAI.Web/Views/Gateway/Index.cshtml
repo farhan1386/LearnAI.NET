@@ -1,0 +1,69 @@
+﻿@* Add this tab section inside your Index.cshtml to support single-provider interactive testing *@
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <ul class="nav nav-tabs card-header-tabs border-bottom-0" id="gatewayTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active fw-bold px-4" id="benchmark-tab" data-bs-toggle="tab" data-bs-target="#benchmarkPanel" type="button" role="tab">Cross-Provider Benchmarking</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link fw-bold px-4" id="single-tab" data-bs-toggle="tab" data-bs-target="#singlePanel" type="button" role="tab">Single Provider Testing</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-4 tab-content">
+                <div class="tab-pane fade show active" id="benchmarkPanel" role="tabpanel">
+                    <p class="text-muted mb-3">Broadcast a single uniform test prompt simultaneously across configurations to evaluate core performance metrics.</p>
+                    <form id="benchmarkForm" onsubmit="runBenchmark(event)">
+                        <div class="input-group">
+                            <input type="text" id="benchmarkPrompt" class="form-control form-control-lg border-secondary-subtle" placeholder="Enter a structural benchmark prompt..." required autocomplete="off" />
+                            <button class="btn btn-primary px-4 fw-semibold" type="submit" id="runBtn">Execute Benchmark</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="tab-pane fade" id="singlePanel" role="tabpanel">
+                    <p class="text-muted mb-3">Target a specific provider infrastructure directly to test conversational capabilities.</p>
+                    <form id="singleProviderForm" onsubmit="runSingleExecution(event)">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <select class="form-select form-select-lg border-secondary-subtle" id="targetProvider" required>
+                                    <option value="1" selected>Ollama (Local Engine)</option>
+                                    <option value="2">OpenAI Cloud</option>
+                                    <option value="3">Azure OpenAI Platform</option>
+                                    <option value="4">Anthropic Claude Proxy</option>
+                                    <option value="5">Google Gemini</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" id="customModelName" class="form-control form-select-lg border-secondary-subtle" placeholder="Override model (Leave blank for fallback default)..." autocomplete="off" />
+                            </div>
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <input type="text" id="singlePrompt" class="form-control form-control-lg border-secondary-subtle" placeholder="Type your instruction or message for the selected engine..." required autocomplete="off" />
+                                    <button class="btn btn-dark px-4 fw-semibold" type="submit" id="singleRunBtn">Send Instruction</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row d-none" id="singleResponseLayout">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 border-start border-3 border-dark">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3 text-dark">Engine Execution Output</h5>
+                <div class="bg-light p-3 rounded text-dark overflow-auto style="max-height: 400px; font-family: monospace; white-space: pre-wrap;" id="rawOutputArea"></div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/js/gateway.js" asp-append-version="true"></script>
+}

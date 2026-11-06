@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "MCP Execution Panel";
+}
+
+<div class="container mt-5" style="max-width: 700px;">
+    <div class="card shadow-sm border-0 bg-light p-4 mb-4">
+        <h2 class="fw-bold text-dark mb-1">🔌 MCP Tool Pipeline Runner</h2>
+        <p class="text-muted">Synchronously route payloads down into active Model Context Protocol server loops.</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger shadow-sm pb-0">
+            <div asp-validation-summary="All" class="text-danger"></div>
+        </div>
+    }
+
+    <div class="card shadow-sm border-1">
+        <div class="card-body p-4">
+            <form asp-action="Execute" method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-uppercase text-secondary">Target Server Name</label>
+                    <input type="text" name="serverName" class="form-control font-monospace" value="LocalMathServer" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-uppercase text-secondary">Tool Name (Method)</label>
+                    <input type="text" name="toolName" class="form-control font-monospace" placeholder="e.g., calculate, get_weather" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-uppercase text-secondary">Arguments (JSON Payload)</label>
+                    <textarea name="arguments" class="form-control font-monospace" rows="5">{"a": 10, "b": 5, "op": "multiply"}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow-sm text-uppercase tracking-wider">
+                    Dispatch Invocation Request
+                </button>
+            </form>
+        </div>
+    </div>
+
+    @if (ViewBag.Result != null)
+    {
+        <div class="card shadow-sm border-success mt-4">
+            <div class="card-header bg-success text-white fw-bold py-2">
+                Execution Pipeline Return Result
+            </div>
+            <div class="card-body bg-dark text-light p-0">
+                <pre class="m-0 p-3 font-monospace text-success" style="font-size: 0.9rem; overflow-x: auto;">@ViewBag.Result</pre>
+            </div>
+        </div>
+    }
+</div>

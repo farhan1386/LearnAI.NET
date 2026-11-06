@@ -1,0 +1,81 @@
+﻿@{
+    ViewData["Title"] = "Local AI Assistant";
+}
+
+<div class="chat-layout">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <button class="btn btn-new-chat" onclick="window.location.reload();">
+                <span>➕</span>
+                <span>New Chat</span>
+            </button>
+        </div>
+        <div class="sidebar-history" id="sidebarHistory">
+            <button class="history-item active">
+                <span>💬</span>
+                <span class="text-truncate">Current Conversation</span>
+            </button>
+        </div>
+        <div class="p-3 border-top bg-light">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-bold text-secondary">Options</span>
+                <button class="btn btn-sm p-0 border-0" type="button" data-bs-toggle="collapse" data-bs-target="#chatSettings">
+                    ⚙️
+                </button>
+            </div>
+            <div class="collapse" id="chatSettings">
+                <div class="mb-2">
+                    <label for="modelSelector" class="form-label small mb-1 fw-semibold text-muted">Model</label>
+                    <select id="modelSelector" class="form-select form-select-sm">
+                        <option value="phi3">Microsoft Phi-3</option>
+                        <option value="llama3.2">Meta Llama 3.2</option>
+                        <option value="phi4" selected>Microsoft Phi-4</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label for="temperatureInput" class="form-label small mb-1 d-flex justify-content-between text-muted fw-semibold">
+                        <span>Temperature</span>
+                        <span id="tempValue" class="text-primary">0.7</span>
+                    </label>
+                    <input type="range" class="form-range" id="temperatureInput" min="0.0" max="1.5" step="0.1" value="0.7" oninput="document.getElementById('tempValue').innerText = this.value">
+                </div>
+                <div>
+                    <label for="maxTokensInput" class="form-label small mb-1 text-muted fw-semibold">Max Tokens</label>
+                    <input type="number" class="form-control form-control-sm" id="maxTokensInput" min="1" max="8192" value="1000">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-chat">
+        <div id="chatHistory" class="flex-grow-1 overflow-auto p-4">
+            <div class="chat-container">
+                <div class="d-flex gap-3 mb-4 align-items-start">
+                    <div class="avatar-box bg-dark text-white">🤖</div>
+                    <div class="message-text">
+                        Hello! How can I help you today?
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-3 bg-white">
+            <div class="chat-container">
+                <form id="chatForm" onsubmit="handleChatSubmit(event)">
+                    <div class="input-pill-wrapper">
+                        <input type="text" id="userInput" class="form-control input-pill" placeholder="Message Local AI..." autocomplete="off" required />
+                        <button class="btn btn-send-pill" type="submit" id="sendBtn">
+                            ▲
+                        </button>
+                    </div>
+                </form>
+                <div class="text-center footer-disclaimer mt-2">
+                    Local AI can make mistakes. Verify important info.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/js/chat.js" asp-append-version="true"></script>
+}

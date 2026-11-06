@@ -1,0 +1,293 @@
+{
+  "week1": {
+    "title": "Week 1: LearnAI.Chat",
+    "days": [
+      {
+        "dayNum": "Day 1",
+        "dayTitle": "AI Fundamentals & Setup",
+        "sections": [
+          {
+            "title": "Theory",
+            "icon": "📘",
+            "textColor": "text-primary",
+            "items": [
+              {
+                "label": "What is AI?",
+                "answer": "Artificial intelligence (AI) is the broad field of making computers perform tasks that usually require human-like abilities, such as understanding language, recognizing images, making predictions, or solving problems.<br><br><strong>For example:</strong><br>• A spam filter learns to identify unwanted email.<br>• A map app predicts traffic and suggests a route.<br>• A chatbot interprets a question and generates a reply.<br><br>AI doesn’t necessarily think or understand like a person. It processes information using rules or patterns learned from data.<br><br><strong>In short:</strong> AI is the broad idea of computers performing tasks associated with intelligence."
+              },
+              {
+                "label": "What is Generative AI?",
+                "answer": "Generative AI is a type of AI that creates new content from a prompt. It can generate text, code, images, audio, and other material.<br><br><strong>For example, you could ask it:</strong><br><em>“Write a C# method that adds two numbers.”</em><br><br>It generates a possible method based on patterns it learned from training data. It isn’t simply looking up a finished answer; it produces a response based on your request and its learned patterns.<br><br>Generative AI can be useful for drafting, explaining, summarizing, and brainstorming. Its answers can also be incorrect, so important information should be checked.<br><br><strong>In short:</strong> AI is the broad field; Generative AI is AI that creates content."
+              },
+              {
+                "label": "What is an LLM?",
+                "answer": "LLM stands for Large Language Model. It is a type of AI model trained on large amounts of text so it can work with language.<br><br>An LLM processes your prompt and generates text piece by piece. It can answer questions, explain ideas, summarize documents, or help write code.<br><br><strong>For example:</strong> When you ask, “What is a C# class?”, the model uses patterns learned during training to generate an explanation. It doesn’t search its training data for one exact answer, and it can sometimes produce incorrect information.<br><br><strong>In short:</strong> An LLM is an AI model designed to understand and generate language."
+              },
+              {
+                "label": "What is a Token?",
+                "answer": "A token is a small piece of text that a language model processes. A token might be a whole word, part of a word, punctuation, or even a space combined with text.<br><br><strong>For example, a tokenizer might split:</strong><br><code>Chatting is fun!</code><br>into pieces like:<br><code>Chat · ting · is · fun · !</code><br><br>The exact pieces depend on the model’s tokenizer. That’s why a token is not always the same as a word.<br><br>Tokens matter because models process prompts and responses as tokens, and model limits and usage are often measured in tokens.<br><br><strong>In short:</strong> Tokens are the chunks of text an LLM reads and generates."
+              },
+              {
+                "label": "What is a Context Window?",
+                "answer": "A context window is the amount of text a model can take into account during one interaction. It is measured in tokens.<br><br>It can include:<br>• Your current prompt<br>• Earlier messages in the conversation<br>• Instructions given to the model<br>• The response the model is generating<br><br><strong>Analogy:</strong> Imagine a desk with limited space: only the papers on the desk can be considered at once. If a conversation becomes longer than the model’s context window, some earlier information may need to be left out or summarized.<br><br>A larger context window lets the model work with more text at once. It doesn’t guarantee the model will remember or use every detail accurately.<br><br><strong>In short:</strong> The context window is the model’s limited working space for the current conversation."
+              },
+              {
+                "label": "Prompt vs Completion",
+                "answer": "A prompt is the input you give a language model. It can be a question, instruction, or a longer set of directions.<br>A completion is the text the model generates in response.<br><br><strong>Example:</strong><br>• <strong>Prompt:</strong> <em>“Explain what a context window is in one sentence.”</em><br>• <strong>Completion:</strong> <em>“A context window is the amount of text a model can process during one interaction.”</em><br><br>In a chat app, the prompt may include more than the latest message: it can also contain system instructions and earlier conversation messages. The completion is the assistant’s generated reply.<br><br><strong>In short:</strong> The prompt is what goes in; the completion is what the model generates."
+              }
+            ]
+          },
+          {
+            "title": "Setup",
+            "icon": "🛠️",
+            "textColor": "text-warning",
+            "items": [
+              { "label": "Install .NET 10" },
+              { "label": "Install Visual Studio 2026" },
+              { "label": "Install Ollama" },
+              { "label": "Download Phi-3" },
+              { "label": "Download Phi-4" },
+              { "label": "Create LearnAI Solution" },
+              { "label": "Create LearnAI.Web" },
+              { "label": "Create LearnAI.API" },
+              { "label": "Create LearnAI.Chat" }
+            ]
+          },
+          {
+            "title": "Result",
+            "icon": "🎯",
+            "textColor": "text-success",
+            "items": [
+              { "label": "MVC → API → Ollama works" }
+            ]
+          }
+        ]
+      },
+      {
+        "dayNum": "Day 2",
+        "dayTitle": "Chat Completions",
+        "sections": [
+          {
+            "title": "Theory",
+            "icon": "📘",
+            "textColor": "text-primary",
+            "items": [
+              {
+                "label": "IChatClient",
+                "answer": "IChatClient is a .NET interface for sending messages to a chat model and receiving its response. It gives your application a common way to work with different AI providers or models.<br><br><strong>In LearnAI.Chat, the flow might look like this:</strong><br>1. The user types a message in the MVC screen.<br>2. LearnAI.Web sends a request to LearnAI.API.<br>3. The API’s chat service uses an IChatClient to send messages to the model.<br>4. The model’s response comes back through the API and is displayed on the screen.<br><br>The interface describes how your code communicates with a chat model. A configured implementation does the actual provider-specific work.<br><br><strong>In short:</strong> IChatClient is a .NET abstraction your app can use to send chat messages to an AI model and receive replies."
+              },
+              {
+                "label": "Chat Completion",
+                "answer": "A chat completion is the assistant’s generated reply to a chat request.<br><br>Your application sends the model a sequence of messages—often including system instructions and the user’s question. The model processes them and returns a response. Your app can then show that response in the chat screen.<br><br><strong>Example:</strong><br>• <strong>User message:</strong> <em>“What is dependency injection in .NET?”</em><br>• <strong>Chat completion:</strong> <em>“Dependency injection is a technique for providing a class with the services it needs, rather than having it create them itself.”</em><br><br>A completion may also include metadata, such as token usage or a reason the model stopped generating. The exact details depend on the model library and provider.<br><br><strong>In short:</strong> A chat request contains the input messages; the chat completion contains the model’s reply and possibly related metadata."
+              },
+              {
+                "label": "Request → Response Lifecycle",
+                "answer": "The request → response lifecycle is the sequence of steps between a user sending a message and seeing the AI’s reply.<br><br><strong>For LearnAI.Chat, it could work like this:</strong><br>1. User enters a message in the MVC chat screen.<br>2. LearnAI.Web creates a request, such as a ChatRequest containing the message.<br>3. The web app sends the request to an endpoint in LearnAI.API.<br>4. The API controller receives it and passes it to ChatService.<br>5. ChatService sends the messages to the model through IChatClient.<br>6. The model generates a completion and returns it to the service.<br>7. The API sends a response—for example, a ChatResponse containing the assistant’s text—to the web app.<br>8. The MVC screen displays the reply to the user.<br><br>If something goes wrong—such as the API being unavailable or the model returning an error—the application should handle that and show an appropriate message.<br><br><strong>In short:</strong> The lifecycle is how a user’s message travels to the model and how the model’s reply returns to the screen."
+              }
+            ]
+          },
+          {
+            "title": "Coding",
+            "icon": "💻",
+            "textColor": "text-danger",
+            "items": [
+              { "label": "ChatRequest DTO" },
+              { "label": "ChatResponse DTO" },
+              { "label": "ChatService" },
+              { "label": "ChatController (API)" },
+              { "label": "MVC Chat Screen" },
+              { "label": "User Input" },
+              { "label": "AI Response Display" }
+            ]
+          },
+          {
+            "title": "Result",
+            "icon": "🎯",
+            "textColor": "text-success",
+            "items": [
+              { "label": "User can ask questions" }
+            ]
+          }
+        ]
+      },
+      {
+        "dayNum": "Day 3",
+        "dayTitle": "Streaming Responses",
+        "sections": [
+          {
+            "title": "Theory",
+            "icon": "📘",
+            "textColor": "text-primary",
+            "items": [
+              {
+                "label": "What is Streaming?",
+                "answer": "With a regular response, the app waits for the model to finish generating the entire reply, then displays it all at once.<br><br>With streaming, the model sends the reply in small pieces as it generates them. The app can display each piece immediately, so the user sees the answer build on screen."
+              },
+              {
+                "label": "GetStreamingResponseAsync()",
+                "answer": "GetStreamingResponseAsync() is an asynchronous method used by some .NET AI libraries to request a response as a stream of pieces, rather than waiting for one complete response.<br><br>The method returns pieces over time. Your code processes each one as it arrives, often sending it to the UI so the reply appears progressively.<br><br>The exact method signature can vary by library version. In the current Microsoft.Extensions.AI API, the commonly used streaming method is named GetStreamingResponseAsync, and it returns an async stream that you can consume with await foreach.<br><br><strong>In short:</strong> It asks the chat model for a response that your app can handle piece by piece."
+              },
+              {
+                "label": "IAsyncEnumerable",
+                "answer": "IAsyncEnumerable&lt;T&gt; is a .NET type for a sequence of items that arrive asynchronously over time.<br><br>A regular collection, such as List&lt;string&gt;, is already available all at once. An IAsyncEnumerable&lt;string&gt; can produce each string later—for example, as chunks of an AI response arrive from the model.<br><br>You consume it with <code>await foreach</code>. Each iteration waits asynchronously for the next item. This lets the application do other work while it waits, instead of blocking a thread.<br><br>In a streaming chat, each item might contain part of the assistant’s response. The app can append each part to the message shown on screen.<br><br><strong>In short:</strong> IAsyncEnumerable&lt;T&gt; represents items that become available asynchronously, one at a time."
+              }
+            ]
+          },
+          {
+            "title": "Coding",
+            "icon": "💻",
+            "textColor": "text-danger",
+            "items": [
+              { "label": "Streaming API Endpoint" },
+              { "label": "Streaming UI" },
+              { "label": "Token-by-Token Rendering" }
+            ]
+          },
+          {
+            "title": "Result",
+            "icon": "🎯",
+            "textColor": "text-success",
+            "items": [
+              { "label": "ChatGPT-like streaming" }
+            ]
+          }
+        ]
+      },
+      {
+        "dayNum": "Day 4",
+        "dayTitle": "System Prompts",
+        "sections": [
+          {
+            "title": "Theory",
+            "icon": "📘",
+            "textColor": "text-primary",
+            "items": [
+              {
+                "label": "System Prompt",
+                "answer": "A system prompt is an instruction that guides how the AI should behave during a conversation. It might define the assistant’s role, tone, or response rules.<br><br><strong>For example:</strong><br><em>“You are a .NET architect. Explain design choices clearly and include C# examples when useful.”</em><br><br>The system prompt is separate from the user’s message. The application typically supplies it, while the user asks a question such as: <em>“How should I structure a web API?”</em> The model uses both pieces of information when generating its response. A system prompt guides the model, but it does not guarantee perfect compliance.<br><br><strong>In short:</strong> The system prompt gives the assistant its instructions for the conversation."
+              },
+              {
+                "label": "User Prompt",
+                "answer": "A user prompt is the message or request the user sends to the AI. It tells the assistant what they want help with.<br><br><strong>For example:</strong><br><em>“Explain dependency injection in .NET and give a short C# example.”</em><br><br>The user prompt is one part of the conversation. The model may also receive a system prompt with instructions about how to respond, plus earlier messages for context.<br><br><strong>In short:</strong> The user prompt is the user’s input or request to the assistant."
+              },
+              {
+                "label": "Assistant Message",
+                "answer": "An assistant message is content produced by the AI assistant and returned to the user. It might answer a question, ask for clarification, or explain what to do next.<br><br><strong>For example:</strong><br>• <strong>User:</strong> <em>“What is dependency injection?”</em><br>• <strong>Assistant:</strong> <em>“Dependency injection provides a class with the services it needs…”</em><br><br>In a chat application, messages are often labeled by role—such as system, user, or assistant—so the model can tell who supplied each message.<br><br><strong>In short:</strong> The assistant message is the AI’s contribution to the conversation."
+              },
+              {
+                "label": "Personas",
+                "answer": "A persona is a description of the role, tone, or approach you want the AI assistant to use. In a chat app, a persona is often expressed through the system prompt.<br><br><strong>Examples:</strong><br>• <strong>.NET Architect:</strong> <em>“Review designs for maintainability, scalability, and common .NET practices.”</em><br>• <strong>Azure Expert:</strong> <em>“Explain Azure services clearly and include practical configuration guidance.”</em><br>• <strong>Code Reviewer:</strong> <em>“Look for bugs, security issues, and readability problems. Explain each finding.”</em><br><br>The persona guides the assistant’s responses, but it doesn’t give the model new expertise or guarantee that every answer will be correct.<br><br><strong>In short:</strong> A persona is a chosen style or role for the assistant, usually described in its system prompt."
+              }
+            ]
+          },
+          {
+            "title": "Coding",
+            "icon": "💻",
+            "textColor": "text-danger",
+            "items": [
+              { "label": "Add UI Element: System Prompt textbox" },
+              { "label": "Example Configuration: .NET Architect" },
+              { "label": "Example Configuration: Azure Expert" },
+              { "label": "Example Configuration: Code Reviewer" },
+              { "label": "Update ChatService: Build ChatMessage collection" },
+              { "label": "Update ChatService: Include ChatRole.System" }
+            ]
+          },
+          {
+            "title": "Result",
+            "icon": "🎯",
+            "textColor": "text-success",
+            "items": [
+              { "label": "AI personality control" }
+            ]
+          }
+        ]
+      },
+      {
+        "dayNum": "Day 5",
+        "dayTitle": "Chat History",
+        "sections": [
+          {
+            "title": "Theory",
+            "icon": "📘",
+            "textColor": "text-primary",
+            "items": [
+              {
+                "label": "What is context retention?",
+                "answer": "Context retention is an app’s ability to keep relevant earlier conversation messages available when it sends a new request to the AI.<br><br><strong>For example:</strong><br>1. User: <em>“I’m using C#.”</em><br>2. User: <em>“Show me how to read a file.”</em><br><br>If the app sends both messages, the AI can tailor its answer to C#. If it sends only “Show me how to read a file,” the AI may not know the earlier detail.<br><br>The app usually needs to store and resend the relevant messages. The model does not automatically remember conversations between separate requests unless the app provides that history or uses a separate memory feature.<br><br><strong>In short:</strong> Context retention means carrying useful conversation context into later requests."
+              },
+              {
+                "label": "What is conversation memory?",
+                "answer": "Conversation memory is the information from earlier parts of a conversation that an app keeps and makes available for later replies.<br><br>For a basic chat app, memory can simply be the message history:<br>When the user asks the next question, the app can send the relevant earlier messages along with it. The model can then use that context to shape its answer.<br><br>“Memory” doesn’t necessarily mean the model remembers on its own. In many apps, the application stores the messages and includes them in each request. Longer chats may need trimming or summarizing to fit the model’s context window.<br><br><strong>In short:</strong> Conversation memory is useful past information that the app supplies to help answer the current message."
+              },
+              {
+                "label": "What is message history?",
+                "answer": "Message history is the ordered list of messages exchanged in a conversation. It usually includes each message’s role—such as user or assistant—and its content.<br><br><strong>Example:</strong><br>Your chat app can store this history and send relevant messages with a new request. That helps the model follow the conversation. A system message may also be included to provide instructions.<br><br>In a simple app, history might be stored in memory while the app is running. A more persistent app can save it to a database so it remains available after restarting.<br><br><strong>In short:</strong> Message history is the conversation’s sequence of role-labeled messages. It can provide context for later replies."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "dayNum": "Day 6",
+        "dayTitle": "Model Parameters",
+        "sections": [
+          {
+            "title": "Theory",
+            "icon": "📘",
+            "textColor": "text-primary",
+            "items": [
+              {
+                "label": "What is temperature?",
+                "answer": "Temperature is a setting that affects how varied or predictable a model’s responses tend to be.<br><br>• <strong>Lower temperature:</strong> responses tend to be more consistent and focused.<br>• <strong>Higher temperature:</strong> responses tend to be more varied and exploratory.<br><br>For example, if you ask for a product name, a lower temperature may produce straightforward suggestions; a higher one may produce more unusual ideas.<br><br>Temperature does not set the model’s accuracy, and its effect depends on the model. It’s best to adjust it for the task and compare results.<br><br><strong>In short:</strong> Temperature influences how varied the model’s wording and choices tend to be."
+              },
+              {
+                "label": "What is Top P?",
+                "answer": "Top P—also called nucleus sampling—is a setting that limits which next tokens the model considers when generating a response.<br><br>The model ranks possible next tokens by probability, then selects from the smallest group whose combined probability reaches the Top P value. For example, a lower value narrows the choices; a higher value allows more options.<br><br>Like temperature, Top P affects response variety. Their interaction can vary by model, so it’s usually best to adjust one setting at a time and compare the results.<br><br><strong>In short:</strong> Top P controls how broad the model’s pool of likely next-token choices can be."
+              },
+              {
+                "label": "What are maximum tokens?",
+                "answer": "Maximum tokens is a limit on how many tokens the model can generate for a response. Since tokens are pieces of text, this setting limits the response’s length.<br><br>For example, a low limit may cut off a long explanation; a higher limit gives the model room to continue. It does not guarantee a particular number of words, because token-to-word ratios vary.<br><br>The model also has an overall context window, which must accommodate the input and generated response. The exact parameter name and behavior can vary by model or .NET library.<br><br><strong>In short:</strong> Maximum tokens sets an upper limit on the generated response length."
+              }
+            ]
+          },
+          {
+            "title": "Setup",
+            "icon": "🛠️",
+            "textColor": "text-warning",
+            "items": [
+              {
+                "label": "Add Temperature to ChatRequest"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "dayNum": "Day 7",
+        "dayTitle": "Tokenization",
+        "sections": [
+          {
+            "title": "Theory",
+            "icon": "📘",
+            "textColor": "text-primary",
+            "items": [
+              {
+                "label": "What is tokenization?",
+                "answer": "Tokenization is the process of splitting text into the tokens a language model works with.<br><br><strong>For example, a tokenizer might split:</strong><br><code>Tokenization helps models process text.</code><br>into pieces such as:<br><code>Token · ization · helps · models · process · text · .</code><br><br>The exact pieces depend on the tokenizer used by the model. A token can be a whole word, part of a word, punctuation, or a combination of characters. So tokens do not correspond exactly to words.<br><br>In an AI app, tokenization matters because prompts and responses are processed and often measured in tokens.<br><br><strong>In short:</strong> Tokenization converts text into the pieces a model processes."
+              },
+              {
+                "label": "What is token counting?",
+                "answer": "Token counting means estimating or measuring how many tokens a piece of text becomes when processed by a particular tokenizer.<br><br><strong>For example, your app might count the tokens in:</strong><br>• The system prompt<br>• The user’s message<br>• Earlier conversation messages<br>• The assistant’s generated reply<br><br>Token counts are model-specific: different models may split the same text differently. For accurate counts, use a tokenizer that matches the model. A rough word-based estimate can help during planning, but it is not an exact count.<br><br>In your chat app, you could show prompt, completion, and total token counts so users can see how much text was processed and generated.<br><br><strong>In short:</strong> Token counting measures text in the units the model processes."
+              },
+              {
+                "label": "What are context window limits?",
+                "answer": "A context window limit is the maximum amount of tokenized content a model can handle for one request. The exact limit depends on the model.<br><br>The request may include the system prompt, conversation history, and new user message. The model’s generated response also uses tokens within its available capacity. If the request is too large, the app may need to shorten or summarize older messages, or the model may return an error or a truncated response.<br><br><strong>Example:</strong> If a chat has a long history, sending every message along with a new question can eventually exceed the model’s limit.<br><br><strong>In short:</strong> Context window limits cap how much input and output the model can process in one interaction."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

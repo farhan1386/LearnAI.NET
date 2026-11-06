@@ -1,0 +1,73 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+
+    var modules = new Dictionary<int, (string Title, string BadgeClass, string TextClass, string BarClass)>
+    {
+        { 1, ("Chat", "bg-primary", "text-primary", "bg-primary") },
+        { 2, ("Gateway", "bg-secondary", "text-secondary", "bg-secondary") },
+        { 3, ("RAG", "bg-success", "text-success", "bg-success") },
+        { 4, ("Tools", "bg-info text-dark", "text-info", "bg-info") },
+        { 5, ("Kernel", "bg-warning text-dark", "text-warning", "bg-warning") },
+        { 6, ("Agents", "bg-danger", "text-danger", "bg-danger") },
+        { 7, ("MCP", "bg-dark", "text-dark", "bg-dark") },
+        { 8, ("Azure", "bg-primary", "text-primary", "bg-primary") }
+    };
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary">Learn AI Curriculum</h1>
+        <p class="lead text-muted">Master production-ready AI development week by week.</p>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 p-4 bg-light text-center">
+                <h3 class="h6 fw-bold text-secondary text-uppercase mb-2">Overall Course Completion</h3>
+                <div class="progress mb-2" style="height: 20px;">
+                    <div id="totalCourseProgressBar" class="progress-bar bg-success progress-bar-striped progress-bar-animated fw-bold" role="progressbar" style="width: 0%">0%</div>
+                </div>
+                <p class="text-muted small mb-0">Tracked dynamically across all 8 specialized modules.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var kvp in modules)
+        {
+            int weekId = kvp.Key;
+            var mod = kvp.Value;
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <a href="@Url.Action("LoadWeek", "Course", new { id = weekId })" class="text-decoration-none text-dark">
+                    <div class="card h-100 shadow-sm border-0 transition-tile position-relative overflow-hidden">
+                        <div class="card-body d-flex flex-column justify-content-between p-4">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge @mod.BadgeClass">Week @weekId</span>
+                                    <span id="badge-status-W@weekId" class="badge bg-light text-success border border-success d-none">Done</span>
+                                </div>
+                                <h3 class="h5 card-title fw-bold text-dark mt-1">@mod.Title</h3>
+                            </div>
+
+                            <div class="mt-4">
+                                <div class="progress mb-2" style="height: 6px; background-color: #e9ecef;">
+                                    <div id="tileProgressBar-W@weekId" class="progress-bar @mod.BarClass" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small text-muted" id="progress-text-W@weekId">0% ready</span>
+                                    <span class="@mod.TextClass fw-semibold small">Explore Module &rarr;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    window.trueWeekItemTotals = @Html.Raw(ViewBag.TotalCounts ?? "{}");
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+}

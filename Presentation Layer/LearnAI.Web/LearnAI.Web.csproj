@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\LearnAI.WebClients\LearnAI.WebClients.csproj" />
+    <ProjectReference Include="..\..\Learning Modules\LearnAI.Chat\LearnAI.Chat.csproj" />
+    <ProjectReference Include="..\..\Learning Modules\LearnAI.Gateway\LearnAI.Gateway.csproj" />
+    <ProjectReference Include="..\..\Learning Modules\LearnAI.Tools\LearnAI.Tools.csproj" />
+  </ItemGroup>
+
+</Project>

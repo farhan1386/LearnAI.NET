@@ -1,0 +1,88 @@
+﻿@model LearnAI.Web.Models.ToolsViewModel
+
+@{
+    ViewData["Title"] = "Function Calling Workspace";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <h2 class="border-bottom pb-2">Week 4: Function Calling & Tool Orchestration</h2>
+            <p class="text-muted">Test local reflection execution pipelines, validation middleware, and automated type mappings through your concrete services.</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Execution Error:</strong> @Model.ErrorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Pipeline Request Parameters</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Tools" asp-action="Execute" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label asp-for="Prompt" class="form-label font-weight-bold">User Intent / Prompt</label>
+                            <textarea asp-for="Prompt" class="form-control" rows="4" placeholder="e.g., What is 42 multiplied by 10? or Check weather forecast in Tokyo for 5 days..."></textarea>
+                            <span asp-validation-for="Prompt" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SelectionMode" class="form-label font-weight-bold">Tool Selection Routing Strategy</label>
+                            <select asp-for="SelectionMode" class="form-select">
+                                <option value="0">Auto (Let LLM select native engine method)</option>
+                                <option value="1">Required (Enforce mandatory execution boundary)</option>
+                                <option value="2">None (Lock out tool access pipelines completely)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TargetToolName" class="form-label font-weight-bold">Target Function Isolation (Optional)</label>
+                            <input asp-for="TargetToolName" class="form-control" placeholder="e.g., MultiplyNumbers, GetForecast" />
+                            <small class="text-muted form-text">Specify an absolute function identity target if using 'Required' selection mapping.</small>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-block">Submit to Execution Pipeline</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="card shadow-sm mb-4" style="min-height: 415px;">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Execution Diagnostics Console</h5>
+                    <span class="badge bg-secondary">UTF-8 String Buffer</span>
+                </div>
+                <div class="card-body bg-light font-monospace d-flex flex-column">
+                    @if (!string.IsNullOrEmpty(Model.ExecutionResult))
+                    {
+                        <div class="p-3 bg-white border rounded flex-grow-1" style="white-space: pre-wrap; font-size: 0.9rem; color: #212529;">@Model.ExecutionResult</div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted my-auto">
+                            <p class="mb-1">🔄 Pipeline Idle</p>
+                            <small>Configure left parameters panel constraints and hit submit to trigger reflection pipelines and view middleware processing payloads.</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
