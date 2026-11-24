@@ -19,13 +19,20 @@ namespace LearnAI.Web.Controllers
         }
 
         [HttpGet]
-        public async Task Stream(string question, string? sessionId, string model = "phi4", string? systemPrompt = null, float temperature = 0.7f, int maxTokens = 1000, CancellationToken cancellationToken = default)
+        public async Task Stream(
+            string question,
+            string? sessionId,
+            string model = "phi4",
+            string? systemPrompt = null,
+            float temperature = 0.7f,
+            int maxTokens = 1000,
+            CancellationToken cancellationToken = default)
         {
             Response.ContentType = "text/event-stream";
             Response.Headers.CacheControl = "no-cache";
             Response.Headers.Connection = "keep-alive";
 
-            string url = $"chat/stream?question={Uri.EscapeDataString(question ?? string.Empty)}&model={Uri.EscapeDataString(model ?? string.Empty)}&sessionId={Uri.EscapeDataString(sessionId ?? string.Empty)}&temperature={temperature}&maxTokens={maxTokens}";
+            string url = $"chat/stream?question={Uri.EscapeDataString(question ?? string.Empty)}&model={Uri.EscapeDataString(model ?? string.Empty)}&sessionId={Uri.EscapeDataString(sessionId ?? string.Empty)}&systemPrompt={Uri.EscapeDataString(systemPrompt ?? string.Empty)}&temperature={temperature}&maxTokens={maxTokens}";
 
             try
             {
@@ -40,14 +47,11 @@ namespace LearnAI.Web.Controllers
                     var line = await reader.ReadLineAsync(cancellationToken);
                     if (string.IsNullOrEmpty(line)) continue;
 
-                    string cleanChunk = line;
-                    if (cleanChunk.StartsWith("data: "))
+                    if (line.StartsWith("data: "))
                     {
-                        cleanChunk = cleanChunk.Substring(6);
+                        await Response.WriteAsync($"{line}\n\n", cancellationToken);
+                        await Response.Body.FlushAsync(cancellationToken);
                     }
-
-                    await Response.WriteAsync($"data: {cleanChunk}\n\n", cancellationToken);
-                    await Response.Body.FlushAsync(cancellationToken);
                 }
             }
             catch (OperationCanceledException)
@@ -56,7 +60,14 @@ namespace LearnAI.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendMessage(string userMessage, string selectedModel, string systemPrompt, string sessionId, float temperature = 0.7f, int maxTokens = 1000)
+        public async Task<IActionResult> SendMessage(
+            string userMessage,
+            string selectedModel,
+            string? systemPrompt,
+            string sessionId,
+            float temperature = 0.7f,
+            int maxTokens = 1000,
+            CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(userMessage))
             {
@@ -70,7 +81,7 @@ namespace LearnAI.Web.Controllers
             try
             {
                 string model = string.IsNullOrWhiteSpace(selectedModel) ? "phi4" : selectedModel;
-                string url = $"chat?question={Uri.EscapeDataString(userMessage)}&model={Uri.EscapeDataString(model)}&sessionId={Uri.EscapeDataString(sessionId ?? string.Empty)}&temperature={temperature}&maxTokens={maxTokens}";
+                string url = $"chat?question={Uri.EscapeDataString(userMessage)}&model={Uri.EscapeDataString(model)}&sessionId={Uri.EscapeDataString(sessionId ?? string.Empty)}&systemPrompt={Uri.EscapeDataString(systemPrompt ?? string.Empty)}&temperature={temperature}&maxTokens={maxTokens}";
 
                 var apiResult = await _apiClient.SendGetAsync<ChatResponse>(url);
 

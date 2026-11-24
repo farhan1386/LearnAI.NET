@@ -1,120 +1,219 @@
 ﻿const sessionId = Math.random().toString(36).substring(2, 15);
+let activeAbortController = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+    const textarea = document.getElementById("userInput");
+    if (!textarea) return;
+
+    textarea.addEventListener("input", () => {
+        textarea.style.height = "auto";
+        textarea.style.height = Math.min(textarea.scrollHeight, 150) + "px";
+    });
+
+    textarea.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            if (!activeAbortController) {
+                document.getElementById("chatForm").requestSubmit();
+            }
+        }
+    });
+});
+
+function useStarterPrompt(text) {
+    const textarea = document.getElementById("userInput");
+    if (!textarea) return;
+    textarea.value = text;
+    document.getElementById("chatForm").requestSubmit();
+}
+
+function toggleStreamingButton(isStreaming) {
+    const btn = document.getElementById("sendBtn");
+    const sendIcon = document.getElementById("sendIcon");
+    const stopIcon = document.getElementById("stopIcon");
+
+    if (isStreaming) {
+        btn.classList.add("is-streaming");
+        btn.setAttribute("aria-label", "Stop generating");
+        sendIcon.classList.add("d-none");
+        stopIcon.classList.remove("d-none");
+    } else {
+        btn.classList.remove("is-streaming");
+        btn.setAttribute("aria-label", "Send message");
+        sendIcon.classList.remove("d-none");
+        stopIcon.classList.add("d-none");
+    }
+}
+
+function renderMarkdown(rawText) {
+    if (typeof marked === "undefined" || typeof DOMPurify === "undefined") {
+        return rawText;
+    }
+
+    const html = marked.parse(rawText, { breaks: true, gfm: true });
+    const cleanHtml = DOMPurify.sanitize(html);
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = cleanHtml;
+
+    tempDiv.querySelectorAll("pre code").forEach((codeEl) => {
+        if (typeof hljs !== "undefined") {
+            hljs.highlightElement(codeEl);
+        }
+
+        const pre = codeEl.parentElement;
+        const langClass = Array.from(codeEl.classList).find((c) => c.startsWith("language-"));
+        const lang = langClass ? langClass.replace("language-", "") : "code";
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "code-block-wrapper";
+
+        const header = document.createElement("div");
+        header.className = "code-block-header";
+        header.innerHTML = `<span>${lang}</span>`;
+
+        const copyBtn = document.createElement("button");
+        copyBtn.type = "button";
+        copyBtn.className = "btn-copy-code";
+        copyBtn.textContent = "Copy";
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(codeEl.textContent);
+            copyBtn.textContent = "Copied!";
+            setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
+        };
+
+        header.appendChild(copyBtn);
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(header);
+        wrapper.appendChild(pre);
+    });
+
+    return tempDiv.innerHTML;
+}
 
 async function handleChatSubmit(event) {
     event.preventDefault();
 
+    if (activeAbortController) {
+        activeAbortController.abort();
+        activeAbortController = null;
+        return;
+    }
+
     const inputElement = document.getElementById("userInput");
     const chatHistory = document.getElementById("chatHistory");
-    const sendBtn = document.getElementById("sendBtn");
     const modelSelector = document.getElementById("modelSelector");
+    const systemPromptInput = document.getElementById("systemPromptInput");
     const temperatureInput = document.getElementById("temperatureInput");
     const maxTokensInput = document.getElementById("maxTokensInput");
 
     const question = inputElement.value.trim();
     if (!question) return;
 
-    const temperature = temperatureInput ? temperatureInput.value : 0.7;
-    const maxTokens = maxTokensInput ? maxTokensInput.value : 1000;
-
-    inputElement.value = "";
-    inputElement.disabled = true;
-    sendBtn.disabled = true;
-
-    const chatContainer = chatHistory.querySelector(".chat-container") || chatHistory;
-
-    const userMsgDiv = document.createElement("div");
-    userMsgDiv.className = "msg-user-wrapper";
-    userMsgDiv.innerHTML = `<div class="msg-user">${escapeHtml(question)}</div>`;
-    chatContainer.appendChild(userMsgDiv);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-
-    const sidebarHistory = document.getElementById("sidebarHistory");
-    if (sidebarHistory) {
-        const activeItem = sidebarHistory.querySelector(".history-item.active");
-        if (activeItem) {
-            const titleSpan = activeItem.querySelector(".text-truncate");
-            if (titleSpan && (titleSpan.textContent === "Current Conversation" || sidebarHistory.children.length === 1)) {
-                titleSpan.textContent = question;
-            }
-        }
+    const welcomeHero = document.getElementById("welcomeHero");
+    if (welcomeHero) {
+        welcomeHero.remove();
     }
 
-    const assistantMsgDiv = document.createElement("div");
-    assistantMsgDiv.className = "d-flex gap-3 mb-4 align-items-start";
+    const temperature = temperatureInput ? temperatureInput.value : 0.7;
+    const maxTokens = maxTokensInput ? maxTokensInput.value : 1000;
+    const systemPrompt = systemPromptInput ? systemPromptInput.value.trim() : "";
 
-    const avatarDiv = document.createElement("div");
-    avatarDiv.className = "avatar-box bg-dark text-white";
-    avatarDiv.textContent = "🤖";
+    inputElement.value = "";
+    inputElement.style.height = "auto";
+    inputElement.disabled = true;
 
-    const assistantTextDiv = document.createElement("div");
-    assistantTextDiv.className = "message-text";
-    assistantTextDiv.textContent = "...";
+    const chatFeed = chatHistory.querySelector(".ai-chat-feed") || chatHistory;
 
-    assistantMsgDiv.appendChild(avatarDiv);
-    assistantMsgDiv.appendChild(assistantTextDiv);
-    chatContainer.appendChild(assistantMsgDiv);
+    const userRow = document.createElement("div");
+    userRow.className = "msg-user-row";
+
+    const userBubble = document.createElement("div");
+    userBubble.className = "msg-user-bubble";
+    userBubble.textContent = question;
+
+    userRow.appendChild(userBubble);
+    chatFeed.appendChild(userRow);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    const sessionTitle = document.getElementById("activeSessionTitle");
+    if (sessionTitle && sessionTitle.textContent === "Current Conversation") {
+        sessionTitle.textContent = question;
+    }
+
+    const aiRow = document.createElement("div");
+    aiRow.className = "msg-ai-row";
+
+    const aiBadge = document.createElement("div");
+    aiBadge.className = "ai-badge";
+    aiBadge.textContent = "AI";
+
+    const aiContent = document.createElement("div");
+    aiContent.className = "markdown-body";
+    aiContent.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div>`;
+
+    aiRow.appendChild(aiBadge);
+    aiRow.appendChild(aiContent);
+    chatFeed.appendChild(aiRow);
     chatHistory.scrollTop = chatHistory.scrollHeight;
 
     const model = modelSelector.value;
-    const url = `/Chat/Stream?question=${encodeURIComponent(question)}&model=${encodeURIComponent(model)}&sessionId=${encodeURIComponent(sessionId)}&temperature=${encodeURIComponent(temperature)}&maxTokens=${encodeURIComponent(maxTokens)}`;
+    const url = `/Chat/Stream?question=${encodeURIComponent(question)}&model=${encodeURIComponent(model)}&sessionId=${encodeURIComponent(sessionId)}&systemPrompt=${encodeURIComponent(systemPrompt)}&temperature=${encodeURIComponent(temperature)}&maxTokens=${encodeURIComponent(maxTokens)}`;
+
+    activeAbortController = new AbortController();
+    toggleStreamingButton(true);
+
+    let fullMarkdown = "";
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: activeAbortController.signal });
         if (!response.ok) throw new Error("Stream connection failed");
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let firstChunk = true;
         let buffer = "";
+
+        const appendSseLine = (line) => {
+            if (!line.startsWith("data: ")) return;
+            const rawPayload = line.substring(6);
+            let cleanText = rawPayload;
+
+            try {
+                cleanText = JSON.parse(rawPayload);
+            } catch {
+            }
+
+            fullMarkdown += cleanText;
+            aiContent.innerHTML = renderMarkdown(fullMarkdown);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        };
 
         while (true) {
             const { done, value } = await reader.read();
 
             if (done) {
-                if (buffer.startsWith("data: ")) {
-                    const cleanText = buffer.substring(6);
-                    if (firstChunk) {
-                        assistantTextDiv.textContent = "";
-                    }
-                    assistantTextDiv.textContent += cleanText;
+                if (buffer) {
+                    appendSseLine(buffer.trim());
                 }
                 break;
             }
 
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split("\n");
-
             buffer = lines.pop() || "";
 
             for (const line of lines) {
-                if (line.startsWith("data: ")) {
-                    const cleanText = line.substring(6);
-
-                    if (firstChunk) {
-                        assistantTextDiv.textContent = "";
-                        firstChunk = false;
-                    }
-
-                    assistantTextDiv.textContent += cleanText;
-                    chatHistory.scrollTop = chatHistory.scrollHeight;
-                }
+                appendSseLine(line.trim());
             }
         }
     } catch (error) {
-        assistantTextDiv.textContent = "Error: Failed to fetch response from local server.";
-        assistantTextDiv.className = "message-text text-danger";
+        if (error.name !== "AbortError") {
+            aiContent.textContent = "Error: Failed to fetch response from local server.";
+            aiContent.classList.add("text-danger");
+        }
     } finally {
+        activeAbortController = null;
+        toggleStreamingButton(false);
         inputElement.disabled = false;
-        sendBtn.disabled = false;
         inputElement.focus();
     }
-}
-
-function escapeHtml(text) {
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "'");
 }

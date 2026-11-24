@@ -1,24 +1,18 @@
 ﻿using LearnAI.Chat.Models;
-using Microsoft.Extensions.AI;
+using System.Collections.Concurrent;
 
 namespace LearnAI.Chat.Services
 {
     public class ConversationMemoryService
     {
-        private readonly Dictionary<string, ConversationSession> _sessions = new();
+        private readonly ConcurrentDictionary<string, ConversationSession> _sessions = new();
 
         public ConversationSession GetSession(string sessionId)
         {
-            if (!_sessions.ContainsKey(sessionId))
+            return _sessions.GetOrAdd(sessionId, id => new ConversationSession
             {
-                _sessions[sessionId] = new ConversationSession
-                {
-                    SessionId = sessionId,
-                    Messages = new List<ChatMessage>()
-                };
-            }
-
-            return _sessions[sessionId];
+                SessionId = id
+            });
         }
     }
 }

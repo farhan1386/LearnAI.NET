@@ -1,6 +1,7 @@
 ﻿using LearnAI.Chat.Models;
 using LearnAI.Chat.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace LearnAI.API.Controllers
 {
@@ -16,7 +17,14 @@ namespace LearnAI.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] string question, [FromQuery] string? sessionId, [FromQuery] string model = "phi4", [FromQuery] float temperature = 0.7f, [FromQuery] int maxTokens = 1000)
+        public async Task<IActionResult> Get(
+            [FromQuery] string question,
+            [FromQuery] string? sessionId,
+            [FromQuery] string model = "phi4",
+            [FromQuery] string? systemPrompt = null,
+            [FromQuery] float temperature = 0.7f,
+            [FromQuery] int maxTokens = 1000,
+            CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(question))
             {
@@ -28,11 +36,12 @@ namespace LearnAI.API.Controllers
                 Message = question,
                 AIModel = model,
                 SessionId = sessionId,
+                SystemPrompt = systemPrompt,
                 Temperature = temperature,
                 MaximumTokens = maxTokens
             };
 
-            var result = await _chatService.AskAsync(request);
+            var result = await _chatService.AskAsync(request, cancellationToken);
 
             if (!result.IsSuccess)
             {
@@ -43,7 +52,14 @@ namespace LearnAI.API.Controllers
         }
 
         [HttpGet("stream")]
-        public async Task Stream([FromQuery] string question, [FromQuery] string? sessionId, [FromQuery] string model = "phi4", [FromQuery] float temperature = 0.7f, [FromQuery] int maxTokens = 1000, CancellationToken cancellationToken = default)
+        public async Task Stream(
+            [FromQuery] string question,
+            [FromQuery] string? sessionId,
+            [FromQuery] string model = "phi4",
+            [FromQuery] string? systemPrompt = null,
+            [FromQuery] float temperature = 0.7f,
+            [FromQuery] int maxTokens = 1000,
+            CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(question))
             {
@@ -61,6 +77,7 @@ namespace LearnAI.API.Controllers
                 Message = question,
                 AIModel = model,
                 SessionId = sessionId,
+                SystemPrompt = systemPrompt,
                 Temperature = temperature,
                 MaximumTokens = maxTokens
             };
@@ -69,7 +86,8 @@ namespace LearnAI.API.Controllers
             {
                 await foreach (var chunk in _chatService.StreamAsync(request, cancellationToken).WithCancellation(cancellationToken))
                 {
-                    await Response.WriteAsync($"data: {chunk}\n\n", cancellationToken);
+                    var serializedChunk = JsonSerializer.Serialize(chunk);
+                    await Response.WriteAsync($"data: {serializedChunk}\n\n", cancellationToken);
                     await Response.Body.FlushAsync(cancellationToken);
                 }
             }

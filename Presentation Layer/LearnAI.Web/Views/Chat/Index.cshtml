@@ -1,81 +1,119 @@
 ﻿@{
-    ViewData["Title"] = "Local AI Assistant";
+    ViewData["Title"] = "AI Chat";
 }
 
-<div class="chat-layout">
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <button class="btn btn-new-chat" onclick="window.location.reload();">
-                <span>➕</span>
+<link rel="stylesheet" href="https://cloudflare.com">
+
+<div class="ai-chat-shell">
+    <div class="ai-chat-topbar">
+        <div class="ai-topbar-left">
+            <button type="button" class="ai-icon-btn" data-bs-toggle="offcanvas" data-bs-target="#settingsDrawer" title="Model Settings">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+            </button>
+
+            <div class="ai-model-pill">
+                <span class="ai-status-dot"></span>
+                <select id="modelSelector" class="ai-model-select" aria-label="Select AI Model">
+                    <option value="phi4" selected>Phi-4 (Local)</option>
+                    <option value="llama3.2">Llama 3.2</option>
+                    <option value="phi3">Phi-3 Mini</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="ai-topbar-right">
+            <button type="button" class="ai-btn-new" onclick="window.location.reload();">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
                 <span>New Chat</span>
             </button>
         </div>
-        <div class="sidebar-history" id="sidebarHistory">
-            <button class="history-item active">
-                <span>💬</span>
-                <span class="text-truncate">Current Conversation</span>
-            </button>
-        </div>
-        <div class="p-3 border-top bg-light">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="small fw-bold text-secondary">Options</span>
-                <button class="btn btn-sm p-0 border-0" type="button" data-bs-toggle="collapse" data-bs-target="#chatSettings">
-                    ⚙️
-                </button>
-            </div>
-            <div class="collapse" id="chatSettings">
-                <div class="mb-2">
-                    <label for="modelSelector" class="form-label small mb-1 fw-semibold text-muted">Model</label>
-                    <select id="modelSelector" class="form-select form-select-sm">
-                        <option value="phi3">Microsoft Phi-3</option>
-                        <option value="llama3.2">Meta Llama 3.2</option>
-                        <option value="phi4" selected>Microsoft Phi-4</option>
-                    </select>
-                </div>
-                <div class="mb-2">
-                    <label for="temperatureInput" class="form-label small mb-1 d-flex justify-content-between text-muted fw-semibold">
-                        <span>Temperature</span>
-                        <span id="tempValue" class="text-primary">0.7</span>
-                    </label>
-                    <input type="range" class="form-range" id="temperatureInput" min="0.0" max="1.5" step="0.1" value="0.7" oninput="document.getElementById('tempValue').innerText = this.value">
-                </div>
-                <div>
-                    <label for="maxTokensInput" class="form-label small mb-1 text-muted fw-semibold">Max Tokens</label>
-                    <input type="number" class="form-control form-control-sm" id="maxTokensInput" min="1" max="8192" value="1000">
+    </div>
+
+    <div id="chatHistory" class="ai-chat-viewport">
+        <div class="ai-chat-feed">
+            <div id="welcomeHero" class="ai-empty-state">
+                <div class="ai-empty-badge">LOCAL OLLAMA ENGINE</div>
+                <h2 class="ai-empty-heading">What are we building today?</h2>
+                <p class="ai-empty-subtext">Fast, private inference running directly on your machine.</p>
+
+                <div class="ai-prompt-cards">
+                    <button type="button" class="ai-prompt-card" onclick="useStarterPrompt('Explain Dependency Injection in C# with a concise code example.')">
+                        <span class="ai-card-tag">C# / .NET</span>
+                        <span class="ai-card-text">Explain Dependency Injection with an example</span>
+                    </button>
+                    <button type="button" class="ai-prompt-card" onclick="useStarterPrompt('Compare IEnumerable vs IQueryable performance in Entity Framework.')">
+                        <span class="ai-card-tag">Performance</span>
+                        <span class="ai-card-text">IEnumerable vs IQueryable in EF Core</span>
+                    </button>
+                    <button type="button" class="ai-prompt-card" onclick="useStarterPrompt('Write a thread-safe Singleton service in C#.')">
+                        <span class="ai-card-tag">Concurrency</span>
+                        <span class="ai-card-text">Thread-safe Singleton pattern in C#</span>
+                    </button>
+                    <button type="button" class="ai-prompt-card" onclick="useStarterPrompt('How do I fix common async/await deadlocks in ASP.NET Core?')">
+                        <span class="ai-card-tag">Debugging</span>
+                        <span class="ai-card-text">Prevent async/await deadlocks in ASP.NET</span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="main-chat">
-        <div id="chatHistory" class="flex-grow-1 overflow-auto p-4">
-            <div class="chat-container">
-                <div class="d-flex gap-3 mb-4 align-items-start">
-                    <div class="avatar-box bg-dark text-white">🤖</div>
-                    <div class="message-text">
-                        Hello! How can I help you today?
-                    </div>
+    <div class="ai-composer-region">
+        <div class="ai-composer-container">
+            <form id="chatForm" onsubmit="handleChatSubmit(event)">
+                <div class="ai-composer-card">
+                    <textarea id="userInput" class="ai-composer-input" rows="1" placeholder="Ask anything..." required></textarea>
+                    <button type="submit" id="sendBtn" class="ai-composer-submit" aria-label="Send message">
+                        <svg id="sendIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                        <svg id="stopIcon" class="d-none" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>
+                    </button>
                 </div>
-            </div>
-        </div>
-
-        <div class="p-3 bg-white">
-            <div class="chat-container">
-                <form id="chatForm" onsubmit="handleChatSubmit(event)">
-                    <div class="input-pill-wrapper">
-                        <input type="text" id="userInput" class="form-control input-pill" placeholder="Message Local AI..." autocomplete="off" required />
-                        <button class="btn btn-send-pill" type="submit" id="sendBtn">
-                            ▲
-                        </button>
-                    </div>
-                </form>
-                <div class="text-center footer-disclaimer mt-2">
-                    Local AI can make mistakes. Verify important info.
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="settingsDrawer" aria-labelledby="settingsDrawerLabel">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold" id="settingsDrawerLabel">Model & Session Settings</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column gap-3">
+        <div>
+            <label class="form-label small fw-bold text-uppercase text-muted">Active Conversation</label>
+            <div class="p-2 px-3 bg-light border rounded-3 d-flex align-items-center gap-2">
+                <span class="ai-status-dot"></span>
+                <span class="text-truncate small fw-medium" id="activeSessionTitle">Current Conversation</span>
+            </div>
+        </div>
+
+        <div>
+            <label for="systemPromptInput" class="form-label small fw-bold text-uppercase text-muted">System Prompt</label>
+            <textarea id="systemPromptInput" class="form-control" rows="4" placeholder="You are a helpful AI assistant..."></textarea>
+        </div>
+
+        <div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="temperatureInput" class="form-label small fw-bold text-uppercase text-muted mb-0">Temperature</label>
+                <span id="tempValue" class="badge bg-primary-subtle text-primary fw-bold">0.7</span>
+            </div>
+            <input type="range" class="form-range" id="temperatureInput" min="0.0" max="1.5" step="0.1" value="0.7" oninput="document.getElementById('tempValue').innerText = this.value">
+            <div class="d-flex justify-content-between small text-muted">
+                <span>Precise (0.0)</span>
+                <span>Creative (1.5)</span>
+            </div>
+        </div>
+
+        <div>
+            <label for="maxTokensInput" class="form-label small fw-bold text-uppercase text-muted">Max Output Tokens</label>
+            <input type="number" class="form-control" id="maxTokensInput" min="64" max="8192" value="1000">
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+    <script src="https://jsdelivr.net"></script>
+    <script src="https://jsdelivr.net"></script>
+    <script src="https://cloudflare.com"></script>
     <script src="~/js/chat.js" asp-append-version="true"></script>
 }

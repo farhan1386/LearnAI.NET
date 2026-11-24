@@ -4,11 +4,6 @@ using LearnAI.Chat.Services;
 using LearnAI.Tools.Interfaces;
 using Microsoft.Extensions.AI;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace LearnAI.AITests.ChatServices
 {
@@ -16,6 +11,7 @@ namespace LearnAI.AITests.ChatServices
     {
         private readonly Mock<IChatClientFactory> _mockClientFactory;
         private readonly ConversationMemoryService _memory;
+        private readonly TokenService _tokenService;
         private readonly Mock<IChatClient> _mockChatClient;
         private readonly Mock<IToolExecutionEngine> _mockToolEngine;
         private readonly ChatService _chatService;
@@ -26,6 +22,7 @@ namespace LearnAI.AITests.ChatServices
             _mockChatClient = new Mock<IChatClient>();
             _mockToolEngine = new Mock<IToolExecutionEngine>();
             _memory = new ConversationMemoryService();
+            _tokenService = new TokenService();
 
             _mockClientFactory
                 .Setup(factory => factory.CreateClient(It.IsAny<string>()))
@@ -33,7 +30,8 @@ namespace LearnAI.AITests.ChatServices
 
             _chatService = new ChatService(
                 _mockClientFactory.Object,
-                _memory
+                _memory,
+                _tokenService
             );
         }
 
@@ -78,9 +76,10 @@ namespace LearnAI.AITests.ChatServices
         }
 
         [Fact]
-        public async Task AskAsync_ClientThrowsException_ReturnsGracefulFailureResponse()
+        public async Task AskAsync_ClientThrowsException_ReturnsGracefulFailureResponseAndRollsBackUserMessage()
         {
-            var request = new ChatRequest { Message = "Break the client", AIModel = "llama3.2" };
+            var sessionId = "error-session";
+            var request = new ChatRequest { SessionId = sessionId, Message = "Break the client", AIModel = "llama3.2" };
 
             _mockChatClient
                 .Setup(client => client.GetResponseAsync(
@@ -90,10 +89,13 @@ namespace LearnAI.AITests.ChatServices
                 .ThrowsAsync(new Exception("Ollama service unavailable"));
 
             var result = await _chatService.AskAsync(request);
+            var session = _memory.GetSession(sessionId);
 
             Assert.False(result.IsSuccess);
             Assert.Contains("Failed to execute AI request: Ollama service unavailable", result.ErrorMessage);
             Assert.Null(result.ResponseText);
+            Assert.Single(session.Messages);
+            Assert.Equal(ChatRole.System, session.Messages[0].Role);
             _mockClientFactory.Verify(factory => factory.CreateClient("llama3.2"), Times.Once);
         }
     }
